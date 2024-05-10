@@ -1,13 +1,58 @@
-# Start with Terraform
+# Import your infrastructure into Terraform
 
 Terraform is currently the most widely used Infrastructure as Code (IAC) tool. Utilizing it brings numerous advantages to managing your infrastructure. You can learn more about it at [Terraform](https://www.terraform.io/).
+
+## Terraform State
+Before starting to migrate your infrastructure, it pays off to understand how Terraform keeps track of your managed infrastructure.
+
+Terraform will map the attributes and metadata of your resources to its internal state and save it to a local file named terraform.tfstate. Every change to a .tf file will be compared with the Terraform state file to determine what changes need to be made.
+
+You can see an example of a .tfstate file bellow:
+
+```json
+# terraform.tfstate
+{
+  "version": 4,
+  "terraform_version": "1.8.2",
+  "serial": 20,
+  "lineage": "",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "latitudesh_project",
+      "name": "guide_project",
+      "provider": "provider[\"registry.terraform.io/latitudesh/latitudesh\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "created": "2024-05-08T22:16:58+00:00",
+            "description": "Terraform Guides example project",
+            "environment": "Development",
+            "id": "proj_7pWRawmOpNrD6",
+            "name": "Terraform Guide",
+            "tags": [],
+            "updated": "2024-05-09T15:20:57+00:00"
+          },
+          "sensitive_attributes": [],
+          "private": ""
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
+```
+Editing the state file directly is discouraged. Terraform will automatically modify it to reflect your current infrastructure by automatically running a `terraform refresh` command before any `terraform plan` usage. However, if you need more advanced state management, you can use the Terraform CLI terraform state command to edit it in a more controlled environment.
 
 ## Migrating your existing Infrastructure
 If you already have infrastructure deployed with us, migrating to Terraform is straightforward. Let's walk through an example:
 
 ![alt text](servers.png)
 
-## Install Terraform
+
+## Installing Terraform
 To begin using Terraform, you'll need to install it following the official documentation: [Get Terraform](https://developer.hashicorp.com/terraform/install?product_intent=terraform).
 
 ### Creating the .tf file
@@ -149,6 +194,23 @@ And it's done! You can now manage this resource with Terraform.
 
 Now let's import some other resources.
 To every latitude.sh resources and how to define them you can read our [Terraform Registry documentation](https://registry.terraform.io/providers/latitudesh/latitudesh/latest/docs).
+
+### Resources IDs
+As we've seen in the process of importing resources, it's necessary to pass the ID of the resource to the import block. One of The fastest and most straightforward ways to obtain the IDs is by using our CLI. 
+
+To learn how to set up the CLI, you can visit our [Latitude.sh CLI documentation page](https://docs.latitude.sh/docs/cli).
+
+After installation, you can use the `lsh` command in your terminal to access your infrastructure.
+
+Let's see an example of how to get the ID of a resource:
+
+![alt text](tags.png)
+
+Here, we have a tag resource. By running lsh tags list, you will see a table with all your tags:
+
+![alt text](tags-table.png)
+
+You'll be able to get the ID from the 'ID' column and use it in the import block.
 
 ### Importing using for_each
 
